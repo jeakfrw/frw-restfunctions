@@ -1,0 +1,74 @@
+import org.gradle.api.JavaVersion
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+/**
+ * Change this to your group in reverse domain notation.
+ */
+group 'de.fearnixx.jeak'
+
+// The current project version - pre-defined for analysis tools that only crawl this file
+ version '1.0.0'
+
+// We want to explicitly use Java 11 otherwise the Gradle VM language version would be used.
+sourceCompatibility = JavaVersion.VERSION_11
+
+// For later use below.
+project.ext {
+    artifact = 'frw_restfunctions'
+}
+
+// Use Mavens snapshot notation convention when we don't want to build a release
+if (!project.hasProperty("release") || project.release != 'true') {
+    version = project.version  + '-SNAPSHOT'
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url uri('https://nexus.fearnixx.de/repository/maven-public')
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java']
+        }
+        resources {
+            srcDirs = ['src/main/resources']
+        }
+    }
+    api {
+        java {
+            srcDirs = ['src/api/java']
+        }
+        resources {
+            srcDirs = ['src/api/resources']
+        }
+    }
+}
+
+dependencies {
+    apiCompile group: 'de.fearnixx', name: 'jeakbot-api', version: '1.1.0-rc.1'
+
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    compile group: 'de.fearnixx', name: 'jeakbot-api', version: '1.1.0-rc.1'
+    compile group: 'de.mlessmann', name: 'confort-api', version: '1.1.0-rc.2'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.10.2'
+    compile sourceSets.api.output
+}
+
+/**
+ * At the moment, this gradle version is tested.
+ * It's advisable to keep this in sync with the gradle version the framework uses.
+ *
+ * The distribution type is set so that IDEA can provide improved code assistance.
+ */
+wrapper {
+    gradleVersion '5.4.2'
+    distributionType = Wrapper.DistributionType.ALL
+}
+
+apply from: './artifacts.gradle'
+apply from: './publication.gradle'

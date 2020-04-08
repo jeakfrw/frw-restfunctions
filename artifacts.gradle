@@ -1,0 +1,36 @@
+// === Artifact configuration === //
+task apiJar(type: Jar) {
+    baseName = project.ext.artifact + '-api'
+    version = project.version
+
+    from sourceSets.api.output
+
+    dependsOn 'compileApiJava'
+    dependsOn 'apiSourcesJar'
+}
+task apiSourcesJar(type: Jar) {
+    baseName = project.ext.artifact + '-api-sources'
+    version = project.version
+
+    from sourceSets.api.allJava
+}
+
+jar() {
+    baseName = project.ext.artifact
+    version = project.version
+
+    from sourceSets.main.output
+
+    dependsOn 'compileJava'
+    dependsOn 'sourcesJar'
+}
+task sourcesJar(type: Jar) {
+    baseName = project.ext.artifact
+    version = project.version
+
+    from sourceSets.main.allJava
+}
+
+build {
+    dependsOn 'jar'
+}

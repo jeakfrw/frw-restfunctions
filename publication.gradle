@@ -1,0 +1,42 @@
+import org.gradle.api.publish.maven.MavenPublication
+
+/*
+ * We're going to provide an example for the FNG Nexus repository
+ */
+publishing {
+    repositories {
+        mavenLocal()
+        maven {
+            def releaseRepository = 'https://nexus.fearnixx.de/repository/maven-releases'
+            def snapshotRepository = 'https://nexus.fearnixx.de/repository/maven-snapshots'
+            name = 'FNGNexus'
+            url uri(project.version.endsWith('SNAPSHOT') ? snapshotRepository : releaseRepository)
+
+            // Credentials are provided from the outside via. project properties.
+            if (project.hasProperty('fngNexusUser') && project.hasProperty('fngNexusPass')) {
+                credentials {
+                    username "$fngNexusUser"
+                    password "$fngNexusPass"
+                }
+            }
+        }
+        // Add more / your repositories here.
+    }
+
+    publications {
+        api(MavenPublication) {
+            artifactId = "${project.ext.artifact}-api"
+            artifact apiJar
+            artifact apiSourcesJar {
+                classifier "sources"
+            }
+        }
+        publish(MavenPublication) {
+            artifactId = project.ext.artifact
+            artifact jar
+            artifact sourcesJar {
+                classifier "sources"
+            }
+        }
+    }
+}
